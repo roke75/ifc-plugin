@@ -1,0 +1,57 @@
+/* Answer style */
+.ifc-answer {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    box-sizing: border-box;
+    opacity: 1;}
+
+/* Hidden state for animation */
+.ifc-answer.new {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;}
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+/* Grid definition */
+#ifc-answers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+/* Answer width */
+.ifc-answer {
+    flex: 1 1 calc(20% - 20px);
+}
+
+/* Responsiveness for smaller screens */
+@media screen and (max-width: 1200px) {
+    .ifc-answer {
+        flex: 1 1 calc(25% - 20px);
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .ifc-answer {
+        flex: 1 1 calc(33.33% - 20px);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .ifc-answer {
+        flex: 1 1 calc(50% - 20px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .ifc-answer {
+        flex: 1 1 100%;
+    }
+}
