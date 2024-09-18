@@ -3,15 +3,17 @@
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 10px;
-    padding: 10px;
+    /* padding: 10px; */
     margin: 10px;
-    box-sizing: border-box;
-    opacity: 1;}
+    /* box-sizing: border-box; */
+    opacity: 1;
+}
 
 /* Hidden state for animation */
 .ifc-answer.new {
     opacity: 0;
-    animation: fadeIn 0.5s forwards;}
+    animation: fadeIn 0.5s forwards;
+}
 
     @keyframes fadeIn {
         to {
@@ -28,7 +30,16 @@
 
 /* Answer width */
 .ifc-answer {
-    flex: 1 1 calc(20% - 20px);
+    flex: 1 1 calc(25% - 20px);
+}
+
+.ifc-answer .card {
+    background-color: #f0f0f0;
+    border: none;
+}
+
+.ifc-answer .card-body {
+    background-color: transparent;
 }
 
 /* Responsiveness for smaller screens */

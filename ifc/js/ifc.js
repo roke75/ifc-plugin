@@ -18,7 +18,7 @@ jQuery(document).ready(function($){
                     // Add new answers
                     if (response.answers.length > 0) {
                         $.each(response.answers, function(index, answerHtml) {
-                            $('#ifc-answers').append(answerHtml);
+                            $('#answers-row').append(answerHtml);
                         });
                         // Update last ID
                         lastID = response.latest_id;
