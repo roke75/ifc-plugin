@@ -33,9 +33,9 @@ Instant Feedback Collector allows you to create and manage questions on your Wor
 1. In the WordPress admin dashboard, navigate to `Instant Feedback Collector`.
 2. In the `Add New Question` section, enter your question text.
 3. Click `Add Question`.
-4. Note the **Question ID** from the list of questions; you will need this for displaying the survey.
+4. Note the **Question ID** from the list of questions; you will need this for displaying the question.
 
-### Displaying the Survey Form
+### Displaying the Question Form
 
 To display the question form on a page or post, use the following shortcode:
 
