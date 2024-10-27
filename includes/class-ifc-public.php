@@ -23,8 +23,7 @@ class IFC_Public {
         // Bootstrap JS
         wp_enqueue_script( 'bootstrap-js', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array( 'jquery' ), null, true );
 
-        // jQCloud CSS and JS
-        wp_enqueue_style( 'jqcloud-css', 'https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.min.css' );
+        // jQCloud JS
         wp_enqueue_script( 'jqcloud-js', 'https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.min.js', array( 'jquery' ), '1.0.4', true );
 
         // Plugin's JS
