@@ -28,6 +28,17 @@ class IFC_AJAX {
             wp_send_json_error( array( 'message' => __( 'Invalid question ID.', 'ifc-plugin' ) ) );
         }
 
+        // Check cache first
+        $cache_key = 'ifc_word_cloud_' . $question_id;
+        $cached_data = get_transient( $cache_key );
+
+        if ( false !== $cached_data ) {
+            wp_send_json_success( array(
+                'word_cloud_data' => $cached_data,
+                'cached'          => true,
+            ) );
+        }
+
         global $wpdb;
         $table_questions = $wpdb->prefix . 'ifc_questions';
         $question = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
@@ -86,8 +97,12 @@ class IFC_AJAX {
             );
         }
 
+        // Cache the word cloud data for 5 minutes
+        set_transient( $cache_key, $word_cloud_data, 5 * MINUTE_IN_SECONDS );
+
         wp_send_json_success( array(
             'word_cloud_data' => $word_cloud_data,
+            'cached'          => false,
         ) );
     }
 

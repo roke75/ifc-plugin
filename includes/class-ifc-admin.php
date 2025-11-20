@@ -15,6 +15,8 @@ class IFC_Admin {
         add_action( 'admin_post_ifc_edit_question', array( $this, 'handle_edit_question' ) );
         add_action( 'admin_post_ifc_delete_question', array( $this, 'handle_delete_question' ) );
         add_action( 'admin_post_ifc_delete_answers', array( $this, 'handle_delete_answers' ) );
+        add_action( 'admin_post_ifc_export_csv', array( $this, 'handle_export_csv' ) );
+        add_action( 'admin_post_ifc_export_json', array( $this, 'handle_export_json' ) );
     }
 
     public function add_admin_menu() {
@@ -279,6 +281,136 @@ class IFC_Admin {
         // Log invalid request
         error_log( 'IFC Plugin: Invalid delete answers request - missing question ID' );
         wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
+        exit;
+    }
+
+    // Handle CSV export
+    public function handle_export_csv() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+        }
+
+        check_admin_referer( 'ifc_export_action', 'ifc_export_nonce' );
+
+        global $wpdb;
+        $question_id = isset( $_GET['question_id'] ) ? intval( $_GET['question_id'] ) : 0;
+
+        if ( $question_id <= 0 ) {
+            wp_die( __( 'Invalid question ID.', 'ifc-plugin' ) );
+        }
+
+        $table_questions = $wpdb->prefix . 'ifc_questions';
+        $table_answers = $wpdb->prefix . 'ifc_answers';
+
+        $question = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
+
+        if ( ! $question ) {
+            wp_die( __( 'Question not found.', 'ifc-plugin' ) );
+        }
+
+        $answers = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, answer, time FROM $table_answers WHERE question_id = %d ORDER BY time ASC",
+                $question_id
+            )
+        );
+
+        // Set headers for CSV download
+        $filename = 'ifc-question-' . $question_id . '-' . date( 'Y-m-d' ) . '.csv';
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: 0' );
+
+        // Create output stream
+        $output = fopen( 'php://output', 'w' );
+
+        // Add BOM for proper UTF-8 encoding in Excel
+        fprintf( $output, chr(0xEF).chr(0xBB).chr(0xBF) );
+
+        // Add question as header
+        fputcsv( $output, array( 'Question:', $question->question ) );
+        fputcsv( $output, array( 'Exported:', date( 'Y-m-d H:i:s' ) ) );
+        fputcsv( $output, array( 'Total Answers:', count( $answers ) ) );
+        fputcsv( $output, array() ); // Empty row
+
+        // Add column headers
+        fputcsv( $output, array( 'ID', 'Answer', 'Timestamp' ) );
+
+        // Add answers
+        foreach ( $answers as $answer ) {
+            fputcsv( $output, array(
+                $answer->id,
+                $answer->answer,
+                $answer->time,
+            ) );
+        }
+
+        fclose( $output );
+        exit;
+    }
+
+    // Handle JSON export
+    public function handle_export_json() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+        }
+
+        check_admin_referer( 'ifc_export_action', 'ifc_export_nonce' );
+
+        global $wpdb;
+        $question_id = isset( $_GET['question_id'] ) ? intval( $_GET['question_id'] ) : 0;
+
+        if ( $question_id <= 0 ) {
+            wp_die( __( 'Invalid question ID.', 'ifc-plugin' ) );
+        }
+
+        $table_questions = $wpdb->prefix . 'ifc_questions';
+        $table_answers = $wpdb->prefix . 'ifc_answers';
+
+        $question = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
+
+        if ( ! $question ) {
+            wp_die( __( 'Question not found.', 'ifc-plugin' ) );
+        }
+
+        $answers = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, answer, time FROM $table_answers WHERE question_id = %d ORDER BY time ASC",
+                $question_id
+            )
+        );
+
+        // Prepare export data
+        $export_data = array(
+            'question' => array(
+                'id'         => $question->id,
+                'text'       => $question->question,
+                'created_at' => $question->created_at,
+            ),
+            'export_info' => array(
+                'exported_at'   => current_time( 'mysql' ),
+                'total_answers' => count( $answers ),
+            ),
+            'answers' => array(),
+        );
+
+        foreach ( $answers as $answer ) {
+            $export_data['answers'][] = array(
+                'id'        => $answer->id,
+                'answer'    => $answer->answer,
+                'timestamp' => $answer->time,
+            );
+        }
+
+        // Set headers for JSON download
+        $filename = 'ifc-question-' . $question_id . '-' . date( 'Y-m-d' ) . '.json';
+        header( 'Content-Type: application/json; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: 0' );
+
+        echo json_encode( $export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
         exit;
     }
 }

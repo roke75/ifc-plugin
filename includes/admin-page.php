@@ -147,6 +147,11 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
                     <input type="hidden" name="question_id" value="<?php echo esc_attr( $question->id ); ?>">
                     <button type="submit" onclick="return confirm('<?php _e( 'Do you really want to delete all answers for this question?', 'ifc-plugin' ); ?>');" style="background:none;border:none;padding:0;color:#0073aa;cursor:pointer;"><?php _e( 'Delete All Answers', 'ifc-plugin' ); ?></button>
                 </form>
+                <?php if ( $entries > 0 ) : ?>
+                    |
+                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=ifc_export_csv&question_id=' . $question->id ), 'ifc_export_action', 'ifc_export_nonce' ); ?>"><?php _e( 'Export CSV', 'ifc-plugin' ); ?></a> |
+                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=ifc_export_json&question_id=' . $question->id ), 'ifc_export_action', 'ifc_export_nonce' ); ?>"><?php _e( 'Export JSON', 'ifc-plugin' ); ?></a>
+                <?php endif; ?>
             </div>
             <?php
             echo '</td>';

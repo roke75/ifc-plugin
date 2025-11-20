@@ -43,6 +43,10 @@ class IFC_Shortcodes {
                     'answer'      => $answer,
                 )
             );
+
+            // Invalidate word cloud cache when new answer is added
+            delete_transient( 'ifc_word_cloud_' . $question_id );
+
             // setcookie('ifc_answered_' . $question_id, '1', time() + 3600, COOKIEPATH, COOKIE_DOMAIN);
             echo '<div class="alert alert-success" role="alert">' . __( 'Thank you for your answer.', 'ifc-plugin' ) . '</div>';
         } else {
