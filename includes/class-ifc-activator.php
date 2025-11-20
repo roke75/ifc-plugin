@@ -19,7 +19,7 @@ class IFC_Activator {
             question text NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id)
-        ) $charset_collate;";
+        ) ENGINE=InnoDB $charset_collate;";
 
         // Table for answers
         $table_answers = $wpdb->prefix . 'ifc_answers';
@@ -30,7 +30,7 @@ class IFC_Activator {
             time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id),
             FOREIGN KEY (question_id) REFERENCES $table_questions(id) ON DELETE CASCADE
-        ) $charset_collate;";
+        ) ENGINE=InnoDB $charset_collate;";
 
         dbDelta( $sql_questions );
         dbDelta( $sql_answers );
