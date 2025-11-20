@@ -20,6 +20,11 @@ class IFC_AJAX {
         $question_id = isset( $_POST['question_id'] ) ? intval( $_POST['question_id'] ) : 0;
 
         if ( $question_id <= 0 ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Invalid question ID in word cloud update. Received: %s, IP: %s',
+                isset( $_POST['question_id'] ) ? $_POST['question_id'] : 'null',
+                isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : 'unknown'
+            ) );
             wp_send_json_error( array( 'message' => __( 'Invalid question ID.', 'ifc-plugin' ) ) );
         }
 
@@ -28,11 +33,28 @@ class IFC_AJAX {
         $question = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
 
         if ( ! $question ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Question ID %d not found in word cloud update',
+                $question_id
+            ) );
             wp_send_json_error( array( 'message' => __( 'Question not found.', 'ifc-plugin' ) ) );
         }
 
         $table_answers = $wpdb->prefix . 'ifc_answers';
         $answers = $wpdb->get_col( $wpdb->prepare( "SELECT answer FROM $table_answers WHERE question_id = %d", $question_id ) );
+
+        // Check for database errors
+        if ( $wpdb->last_error ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Database error in word cloud update for question ID %d. Error: %s',
+                $question_id,
+                $wpdb->last_error
+            ) );
+            wp_send_json_error( array(
+                'message' => __( 'Database error occurred.', 'ifc-plugin' ),
+                'debug'   => defined( 'WP_DEBUG' ) && WP_DEBUG ? $wpdb->last_error : null,
+            ) );
+        }
 
         $word_counts = array();
 
@@ -76,6 +98,11 @@ class IFC_AJAX {
         $question_id  = isset( $_POST['question_id'] ) ? intval( $_POST['question_id'] ) : 0;
 
         if ( $question_id <= 0 ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Invalid question ID in answers update. Received: %s, IP: %s',
+                isset( $_POST['question_id'] ) ? $_POST['question_id'] : 'null',
+                isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : 'unknown'
+            ) );
             wp_send_json_error( array( 'message' => __( 'Invalid question ID.', 'ifc-plugin' ) ) );
         }
 
@@ -84,6 +111,10 @@ class IFC_AJAX {
         $question        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
 
         if ( ! $question ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Question ID %d not found in answers update',
+                $question_id
+            ) );
             wp_send_json_error( array( 'message' => __( 'Question not found.', 'ifc-plugin' ) ) );
         }
 
@@ -95,6 +126,19 @@ class IFC_AJAX {
                 $last_id
             )
         );
+
+        // Check for database errors
+        if ( $wpdb->last_error ) {
+            error_log( sprintf(
+                'IFC Plugin AJAX: Database error in answers update for question ID %d. Error: %s',
+                $question_id,
+                $wpdb->last_error
+            ) );
+            wp_send_json_error( array(
+                'message' => __( 'Database error occurred.', 'ifc-plugin' ),
+                'debug'   => defined( 'WP_DEBUG' ) && WP_DEBUG ? $wpdb->last_error : null,
+            ) );
+        }
 
         $response = array(
             'status'    => 'success',

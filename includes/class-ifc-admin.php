@@ -120,9 +120,22 @@ class IFC_Admin {
                 wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=add' ) );
                 exit;
             }
+
+            // Log database error
+            error_log( sprintf(
+                'IFC Plugin: Failed to insert question. DB Error: %s, Last Query: %s',
+                $wpdb->last_error,
+                $wpdb->last_query
+            ) );
+
+            $error_detail = $wpdb->last_error ? urlencode( $wpdb->last_error ) : 'database_insert_failed';
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=' . $error_detail ) );
+            exit;
         }
 
-        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error' ) );
+        // Log invalid request
+        error_log( 'IFC Plugin: Invalid add question request - missing action or question text' );
+        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
         exit;
     }
 
@@ -153,9 +166,23 @@ class IFC_Admin {
                 wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=edit' ) );
                 exit;
             }
+
+            // Log database error
+            error_log( sprintf(
+                'IFC Plugin: Failed to update question ID %d. DB Error: %s, Last Query: %s',
+                $question_id,
+                $wpdb->last_error,
+                $wpdb->last_query
+            ) );
+
+            $error_detail = $wpdb->last_error ? urlencode( $wpdb->last_error ) : 'database_update_failed';
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=' . $error_detail ) );
+            exit;
         }
 
-        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error' ) );
+        // Log invalid request
+        error_log( 'IFC Plugin: Invalid edit question request - missing required fields' );
+        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
         exit;
     }
 
@@ -174,6 +201,13 @@ class IFC_Admin {
         if ( isset( $_POST['ifc_action'] ) && $_POST['ifc_action'] === 'delete_question' && isset( $_POST['question_id'] ) ) {
             $question_id = intval( $_POST['question_id'] );
 
+            // Manually delete answers first as a fallback in case foreign key doesn't work
+            $wpdb->delete(
+                $table_answers,
+                array( 'question_id' => $question_id ),
+                array( '%d' )
+            );
+
             $deleted = $wpdb->delete(
                 $table_questions,
                 array( 'id' => $question_id ),
@@ -184,9 +218,23 @@ class IFC_Admin {
                 wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=delete' ) );
                 exit;
             }
+
+            // Log database error
+            error_log( sprintf(
+                'IFC Plugin: Failed to delete question ID %d. DB Error: %s, Last Query: %s',
+                $question_id,
+                $wpdb->last_error,
+                $wpdb->last_query
+            ) );
+
+            $error_detail = $wpdb->last_error ? urlencode( $wpdb->last_error ) : 'database_delete_failed';
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=' . $error_detail ) );
+            exit;
         }
 
-        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error' ) );
+        // Log invalid request
+        error_log( 'IFC Plugin: Invalid delete question request - missing question ID' );
+        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
         exit;
     }
 
@@ -214,9 +262,23 @@ class IFC_Admin {
                 wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=delete_answers' ) );
                 exit;
             }
+
+            // Log database error
+            error_log( sprintf(
+                'IFC Plugin: Failed to delete answers for question ID %d. DB Error: %s, Last Query: %s',
+                $question_id,
+                $wpdb->last_error,
+                $wpdb->last_query
+            ) );
+
+            $error_detail = $wpdb->last_error ? urlencode( $wpdb->last_error ) : 'database_delete_failed';
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=' . $error_detail ) );
+            exit;
         }
 
-        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error' ) );
+        // Log invalid request
+        error_log( 'IFC Plugin: Invalid delete answers request - missing question ID' );
+        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
         exit;
     }
 }

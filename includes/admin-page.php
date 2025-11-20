@@ -25,7 +25,29 @@ if ( isset( $_GET['updated'] ) ) {
             echo '<div class="updated notice"><p>' . __( 'All answers for this question have been deleted.', 'ifc-plugin' ) . '</p></div>';
             break;
         case 'error':
-            echo '<div class="error notice"><p>' . __( 'An error occurred. Please try again.', 'ifc-plugin' ) . '</p></div>';
+            $error_message = __( 'An error occurred. Please try again.', 'ifc-plugin' );
+
+            // Show detailed error if available and user has permissions
+            if ( isset( $_GET['error_detail'] ) && current_user_can( 'manage_options' ) ) {
+                $error_detail = sanitize_text_field( urldecode( $_GET['error_detail'] ) );
+
+                // Translate common error codes to user-friendly messages
+                $error_translations = array(
+                    'invalid_request'        => __( 'Invalid request parameters.', 'ifc-plugin' ),
+                    'database_insert_failed' => __( 'Failed to insert data into database.', 'ifc-plugin' ),
+                    'database_update_failed' => __( 'Failed to update database record.', 'ifc-plugin' ),
+                    'database_delete_failed' => __( 'Failed to delete database record.', 'ifc-plugin' ),
+                );
+
+                if ( isset( $error_translations[ $error_detail ] ) ) {
+                    $error_message .= ' ' . $error_translations[ $error_detail ];
+                } else {
+                    // Show raw database error
+                    $error_message .= '<br><small><strong>' . __( 'Technical details:', 'ifc-plugin' ) . '</strong> ' . esc_html( $error_detail ) . '</small>';
+                }
+            }
+
+            echo '<div class="error notice is-dismissible"><p>' . $error_message . '</p></div>';
             break;
         default:
             break;
