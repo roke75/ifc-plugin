@@ -11,6 +11,68 @@ class IFC_Shortcodes {
         add_shortcode( 'ifc_results', array( $this, 'ifc_results_shortcode' ) );
     }
 
+    /**
+     * Check if a question is currently active
+     *
+     * @param object $question The question object from database
+     * @return array Array with 'active' boolean and 'message' string
+     */
+    private function is_question_active( $question ) {
+        $now = current_time( 'mysql' );
+
+        // Check status
+        if ( $question->status !== 'active' ) {
+            $status_messages = array(
+                'draft'    => __( 'This question is not yet available.', 'ifc-plugin' ),
+                'closed'   => __( 'This question is now closed.', 'ifc-plugin' ),
+                'archived' => __( 'This question has been archived.', 'ifc-plugin' ),
+            );
+            return array(
+                'active'  => false,
+                'message' => isset( $status_messages[ $question->status ] ) ? $status_messages[ $question->status ] : __( 'This question is not available.', 'ifc-plugin' ),
+            );
+        }
+
+        // Check start date
+        if ( ! empty( $question->start_date ) && $question->start_date > $now ) {
+            $start_time = strtotime( $question->start_date );
+            return array(
+                'active'  => false,
+                'message' => sprintf(
+                    __( 'This question will open on %s.', 'ifc-plugin' ),
+                    date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $start_time )
+                ),
+            );
+        }
+
+        // Check end date
+        if ( ! empty( $question->end_date ) && $question->end_date < $now ) {
+            return array(
+                'active'  => false,
+                'message' => __( 'This question has closed.', 'ifc-plugin' ),
+            );
+        }
+
+        // Check max answers
+        if ( ! empty( $question->max_answers ) && $question->max_answers > 0 ) {
+            global $wpdb;
+            $table_answers = $wpdb->prefix . 'ifc_answers';
+            $answer_count = $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table_answers WHERE question_id = %d",
+                $question->id
+            ) );
+
+            if ( $answer_count >= $question->max_answers ) {
+                return array(
+                    'active'  => false,
+                    'message' => __( 'This question has reached its maximum number of answers.', 'ifc-plugin' ),
+                );
+            }
+        }
+
+        return array( 'active' => true, 'message' => '' );
+    }
+
     public function ifc_shortcode( $atts ) {
         $atts = shortcode_atts( array(
             'id' => 0,
@@ -30,9 +92,21 @@ class IFC_Shortcodes {
             return __( 'Question not found.', 'ifc-plugin' );
         }
 
+        // Check if question is active
+        $active_check = $this->is_question_active( $question );
+        if ( ! $active_check['active'] ) {
+            return '<div class="alert alert-info" role="alert">' . esc_html( $active_check['message'] ) . '</div>';
+        }
+
         ob_start();
         // Handle form submission
         if ( isset( $_POST['ifc_submit'] ) && isset( $_POST['ifc_answer'] ) && wp_verify_nonce( $_POST['ifc_nonce'], 'ifc_nonce_action' ) ) {
+            // Double-check that question is still active before saving
+            $active_recheck = $this->is_question_active( $question );
+            if ( ! $active_recheck['active'] ) {
+                echo '<div class="alert alert-warning" role="alert">' . esc_html( $active_recheck['message'] ) . '</div>';
+                return ob_get_clean();
+            }
             global $wpdb;
             $table_answers = $wpdb->prefix . 'ifc_answers';
             $answer        = sanitize_text_field( $_POST['ifc_answer'] );
@@ -46,6 +120,24 @@ class IFC_Shortcodes {
 
             // Invalidate word cloud cache when new answer is added
             delete_transient( 'ifc_word_cloud_' . $question_id );
+
+            // Check if we've reached max_answers and auto-close if needed
+            if ( ! empty( $question->max_answers ) && $question->max_answers > 0 ) {
+                $answer_count = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM $table_answers WHERE question_id = %d",
+                    $question_id
+                ) );
+
+                if ( $answer_count >= $question->max_answers ) {
+                    $wpdb->update(
+                        $table_questions,
+                        array( 'status' => 'closed' ),
+                        array( 'id' => $question_id ),
+                        array( '%s' ),
+                        array( '%d' )
+                    );
+                }
+            }
 
             // setcookie('ifc_answered_' . $question_id, '1', time() + 3600, COOKIEPATH, COOKIE_DOMAIN);
             echo '<div class="alert alert-success" role="alert">' . __( 'Thank you for your answer.', 'ifc-plugin' ) . '</div>';

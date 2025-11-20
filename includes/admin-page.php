@@ -83,6 +83,39 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
                         <th scope="row"><?php _e( 'Question', 'ifc-plugin' ); ?></th>
                         <td><input type="text" name="question_text" value="<?php echo esc_attr( $question->question ); ?>" required style="width: 100%;"></td>
                     </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e( 'Status', 'ifc-plugin' ); ?></th>
+                        <td>
+                            <select name="status" style="width: 200px;">
+                                <option value="active" <?php selected( $question->status, 'active' ); ?>><?php _e( 'Active', 'ifc-plugin' ); ?></option>
+                                <option value="draft" <?php selected( $question->status, 'draft' ); ?>><?php _e( 'Draft', 'ifc-plugin' ); ?></option>
+                                <option value="closed" <?php selected( $question->status, 'closed' ); ?>><?php _e( 'Closed', 'ifc-plugin' ); ?></option>
+                                <option value="archived" <?php selected( $question->status, 'archived' ); ?>><?php _e( 'Archived', 'ifc-plugin' ); ?></option>
+                            </select>
+                            <p class="description"><?php _e( 'Only active questions can receive new answers.', 'ifc-plugin' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e( 'Start Date', 'ifc-plugin' ); ?></th>
+                        <td>
+                            <input type="datetime-local" name="start_date" value="<?php echo esc_attr( $question->start_date ? date( 'Y-m-d\TH:i', strtotime( $question->start_date ) ) : '' ); ?>" style="width: 250px;">
+                            <p class="description"><?php _e( 'Question will become active at this date/time. Leave empty for immediate activation.', 'ifc-plugin' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e( 'End Date', 'ifc-plugin' ); ?></th>
+                        <td>
+                            <input type="datetime-local" name="end_date" value="<?php echo esc_attr( $question->end_date ? date( 'Y-m-d\TH:i', strtotime( $question->end_date ) ) : '' ); ?>" style="width: 250px;">
+                            <p class="description"><?php _e( 'Question will automatically close at this date/time. Leave empty for no automatic closing.', 'ifc-plugin' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><?php _e( 'Maximum Answers', 'ifc-plugin' ); ?></th>
+                        <td>
+                            <input type="number" name="max_answers" value="<?php echo esc_attr( $question->max_answers ); ?>" min="0" style="width: 100px;">
+                            <p class="description"><?php _e( 'Question will automatically close after receiving this many answers. Leave empty or set to 0 for unlimited answers.', 'ifc-plugin' ); ?></p>
+                        </td>
+                    </tr>
                 </table>
                 <?php submit_button( __( 'Update Question', 'ifc-plugin' ) ); ?>
             </form>
@@ -110,6 +143,38 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
                 <th scope="row"><?php _e( 'Question', 'ifc-plugin' ); ?></th>
                 <td><input type="text" name="question_text" required style="width: 100%;"></td>
             </tr>
+            <tr valign="top">
+                <th scope="row"><?php _e( 'Status', 'ifc-plugin' ); ?></th>
+                <td>
+                    <select name="status" style="width: 200px;">
+                        <option value="active"><?php _e( 'Active', 'ifc-plugin' ); ?></option>
+                        <option value="draft"><?php _e( 'Draft', 'ifc-plugin' ); ?></option>
+                        <option value="closed"><?php _e( 'Closed', 'ifc-plugin' ); ?></option>
+                        <option value="archived"><?php _e( 'Archived', 'ifc-plugin' ); ?></option>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><?php _e( 'Start Date', 'ifc-plugin' ); ?></th>
+                <td>
+                    <input type="datetime-local" name="start_date" value="" style="width: 250px;">
+                    <p class="description"><?php _e( 'Optional: Question will become active at this date/time.', 'ifc-plugin' ); ?></p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><?php _e( 'End Date', 'ifc-plugin' ); ?></th>
+                <td>
+                    <input type="datetime-local" name="end_date" value="" style="width: 250px;">
+                    <p class="description"><?php _e( 'Optional: Question will automatically close at this date/time.', 'ifc-plugin' ); ?></p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><?php _e( 'Maximum Answers', 'ifc-plugin' ); ?></th>
+                <td>
+                    <input type="number" name="max_answers" value="" min="0" style="width: 100px;">
+                    <p class="description"><?php _e( 'Optional: Question will close after receiving this many answers (0 = unlimited).', 'ifc-plugin' ); ?></p>
+                </td>
+            </tr>
         </table>
         <?php submit_button( __( 'Add Question', 'ifc-plugin' ) ); ?>
     </form>
@@ -132,6 +197,41 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
             echo '<tr>';
             echo '<td class="ifc-question-cell">';
             echo '<span class="question-text">' . esc_html( $question->question ) . '</span>';
+
+            // Display status badge
+            $status_colors = array(
+                'active'   => '#46b450',
+                'draft'    => '#72aee6',
+                'closed'   => '#dc3232',
+                'archived' => '#999',
+            );
+            $status_labels = array(
+                'active'   => __( 'Active', 'ifc-plugin' ),
+                'draft'    => __( 'Draft', 'ifc-plugin' ),
+                'closed'   => __( 'Closed', 'ifc-plugin' ),
+                'archived' => __( 'Archived', 'ifc-plugin' ),
+            );
+            $status = ! empty( $question->status ) ? $question->status : 'active';
+            $color = isset( $status_colors[ $status ] ) ? $status_colors[ $status ] : '#999';
+            $label = isset( $status_labels[ $status ] ) ? $status_labels[ $status ] : ucfirst( $status );
+
+            echo '<span style="display: inline-block; margin-left: 8px; padding: 2px 8px; background: ' . esc_attr( $color ) . '; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">' . esc_html( $label ) . '</span>';
+
+            // Show scheduling info if available
+            $scheduling_info = array();
+            if ( ! empty( $question->start_date ) ) {
+                $scheduling_info[] = '📅 ' . sprintf( __( 'Opens: %s', 'ifc-plugin' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $question->start_date ) ) );
+            }
+            if ( ! empty( $question->end_date ) ) {
+                $scheduling_info[] = '🔒 ' . sprintf( __( 'Closes: %s', 'ifc-plugin' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $question->end_date ) ) );
+            }
+            if ( ! empty( $question->max_answers ) && $question->max_answers > 0 ) {
+                $scheduling_info[] = '🎯 ' . sprintf( __( 'Max: %d answers', 'ifc-plugin' ), $question->max_answers );
+            }
+
+            if ( ! empty( $scheduling_info ) ) {
+                echo '<div style="margin-top: 4px; font-size: 11px; color: #666;">' . implode( ' &nbsp;|&nbsp; ', $scheduling_info ) . '</div>';
+            }
             ?>
             <div class="ifc-shortcodes" style="margin-top: 8px; font-size: 12px; color: #666;">
                 <div style="margin-bottom: 4px;">

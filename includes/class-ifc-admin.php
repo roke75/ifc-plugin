@@ -113,11 +113,39 @@ class IFC_Admin {
 
         if ( isset( $_POST['ifc_action'] ) && $_POST['ifc_action'] === 'add_question' && ! empty( $_POST['question_text'] ) ) {
             $question_text = sanitize_text_field( $_POST['question_text'] );
-            $inserted = $wpdb->insert(
-                $table_questions,
-                array( 'question' => $question_text ),
-                array( '%s' )
+            $status = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : 'active';
+            $start_date = ! empty( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : null;
+            $end_date = ! empty( $_POST['end_date'] ) ? sanitize_text_field( $_POST['end_date'] ) : null;
+            $max_answers = ! empty( $_POST['max_answers'] ) ? intval( $_POST['max_answers'] ) : null;
+
+            // Convert datetime-local format to MySQL datetime format
+            if ( $start_date ) {
+                $start_date = date( 'Y-m-d H:i:s', strtotime( $start_date ) );
+            }
+            if ( $end_date ) {
+                $end_date = date( 'Y-m-d H:i:s', strtotime( $end_date ) );
+            }
+
+            $data = array(
+                'question' => $question_text,
+                'status' => $status,
             );
+            $format = array( '%s', '%s' );
+
+            if ( $start_date ) {
+                $data['start_date'] = $start_date;
+                $format[] = '%s';
+            }
+            if ( $end_date ) {
+                $data['end_date'] = $end_date;
+                $format[] = '%s';
+            }
+            if ( $max_answers && $max_answers > 0 ) {
+                $data['max_answers'] = $max_answers;
+                $format[] = '%d';
+            }
+
+            $inserted = $wpdb->insert( $table_questions, $data, $format );
 
             if ( false !== $inserted ) {
                 wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=add' ) );
@@ -156,12 +184,33 @@ class IFC_Admin {
         if ( isset( $_POST['ifc_action'] ) && $_POST['ifc_action'] === 'edit_question' && ! empty( $_POST['question_text'] ) && isset( $_POST['question_id'] ) ) {
             $question_text = sanitize_text_field( $_POST['question_text'] );
             $question_id   = intval( $_POST['question_id'] );
+            $status = isset( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : 'active';
+            $start_date = ! empty( $_POST['start_date'] ) ? sanitize_text_field( $_POST['start_date'] ) : null;
+            $end_date = ! empty( $_POST['end_date'] ) ? sanitize_text_field( $_POST['end_date'] ) : null;
+            $max_answers = ! empty( $_POST['max_answers'] ) ? intval( $_POST['max_answers'] ) : null;
+
+            // Convert datetime-local format to MySQL datetime format
+            if ( $start_date ) {
+                $start_date = date( 'Y-m-d H:i:s', strtotime( $start_date ) );
+            }
+            if ( $end_date ) {
+                $end_date = date( 'Y-m-d H:i:s', strtotime( $end_date ) );
+            }
+
+            $data = array(
+                'question' => $question_text,
+                'status' => $status,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'max_answers' => $max_answers,
+            );
+            $format = array( '%s', '%s', '%s', '%s', '%d' );
 
             $updated = $wpdb->update(
                 $table_questions,
-                array( 'question' => $question_text ),
+                $data,
                 array( 'id' => $question_id ),
-                array( '%s' ),
+                $format,
                 array( '%d' )
             );
 

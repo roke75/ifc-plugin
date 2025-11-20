@@ -18,6 +18,10 @@ class IFC_Activator {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             question text NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            start_date datetime DEFAULT NULL,
+            end_date datetime DEFAULT NULL,
+            max_answers int DEFAULT NULL,
+            status varchar(20) DEFAULT 'active',
             PRIMARY KEY  (id)
         ) ENGINE=InnoDB $charset_collate;";
 
@@ -50,6 +54,41 @@ class IFC_Activator {
         }
         if ( get_option( 'ifc_min_word_length' ) === false ) {
             add_option( 'ifc_min_word_length', 2 );
+        }
+
+        // Run database migration if needed
+        self::maybe_upgrade_database();
+    }
+
+    /**
+     * Check and upgrade database schema if needed
+     */
+    public static function maybe_upgrade_database() {
+        global $wpdb;
+        $table_questions = $wpdb->prefix . 'ifc_questions';
+
+        // Check if the new columns exist
+        $columns = $wpdb->get_col( "DESCRIBE $table_questions", 0 );
+
+        // Add scheduling columns if they don't exist
+        if ( ! in_array( 'start_date', $columns ) ) {
+            $wpdb->query( "ALTER TABLE $table_questions ADD COLUMN start_date datetime DEFAULT NULL AFTER created_at" );
+            error_log( 'IFC Plugin: Added start_date column to questions table' );
+        }
+
+        if ( ! in_array( 'end_date', $columns ) ) {
+            $wpdb->query( "ALTER TABLE $table_questions ADD COLUMN end_date datetime DEFAULT NULL AFTER start_date" );
+            error_log( 'IFC Plugin: Added end_date column to questions table' );
+        }
+
+        if ( ! in_array( 'max_answers', $columns ) ) {
+            $wpdb->query( "ALTER TABLE $table_questions ADD COLUMN max_answers int DEFAULT NULL AFTER end_date" );
+            error_log( 'IFC Plugin: Added max_answers column to questions table' );
+        }
+
+        if ( ! in_array( 'status', $columns ) ) {
+            $wpdb->query( "ALTER TABLE $table_questions ADD COLUMN status varchar(20) DEFAULT 'active' AFTER max_answers" );
+            error_log( 'IFC Plugin: Added status column to questions table' );
         }
     }
 }
