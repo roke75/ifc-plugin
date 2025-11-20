@@ -102,7 +102,7 @@ class IFC_Admin {
     // Handle add question
     public function handle_add_question() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_admin_action', 'ifc_admin_nonce' );
@@ -144,7 +144,7 @@ class IFC_Admin {
     // Handle edit question
     public function handle_edit_question() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_admin_action', 'ifc_admin_nonce' );
@@ -191,7 +191,7 @@ class IFC_Admin {
     // Handle delete question
     public function handle_delete_question() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_admin_action', 'ifc_admin_nonce' );
@@ -243,7 +243,7 @@ class IFC_Admin {
     // Handle delete answers
     public function handle_delete_answers() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_admin_action', 'ifc_admin_nonce' );
@@ -287,7 +287,7 @@ class IFC_Admin {
     // Handle CSV export
     public function handle_export_csv() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_export_action', 'ifc_export_nonce' );
@@ -353,7 +353,7 @@ class IFC_Admin {
     // Handle JSON export
     public function handle_export_json() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Sinulla ei ole riittäviä oikeuksia tähän sivuun.', 'ifc-plugin' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
         }
 
         check_admin_referer( 'ifc_export_action', 'ifc_export_nonce' );

@@ -125,6 +125,23 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
             echo '<td class="ifc-question-cell">';
             echo '<span class="question-text">' . esc_html( $question->question ) . '</span>';
             ?>
+            <div class="ifc-shortcodes" style="margin-top: 8px; font-size: 12px; color: #666;">
+                <div style="margin-bottom: 4px;">
+                    <strong><?php _e( 'Question Form:', 'ifc-plugin' ); ?></strong>
+                    <code class="ifc-shortcode-display" style="background: #f0f0f0; padding: 2px 6px; margin: 0 4px;">[ifc id="<?php echo esc_attr( $question->id ); ?>"]</code>
+                    <button type="button" class="button button-small ifc-copy-shortcode" data-shortcode='[ifc id="<?php echo esc_attr( $question->id ); ?>"]' style="padding: 0 8px; height: 22px; line-height: 20px; font-size: 11px;"><?php _e( 'Copy', 'ifc-plugin' ); ?></button>
+                </div>
+                <div style="margin-bottom: 4px;">
+                    <strong><?php _e( 'Results:', 'ifc-plugin' ); ?></strong>
+                    <code class="ifc-shortcode-display" style="background: #f0f0f0; padding: 2px 6px; margin: 0 4px;">[ifc_results id="<?php echo esc_attr( $question->id ); ?>"]</code>
+                    <button type="button" class="button button-small ifc-copy-shortcode" data-shortcode='[ifc_results id="<?php echo esc_attr( $question->id ); ?>"]' style="padding: 0 8px; height: 22px; line-height: 20px; font-size: 11px;"><?php _e( 'Copy', 'ifc-plugin' ); ?></button>
+                </div>
+                <div>
+                    <strong><?php _e( 'Word Cloud:', 'ifc-plugin' ); ?></strong>
+                    <code class="ifc-shortcode-display" style="background: #f0f0f0; padding: 2px 6px; margin: 0 4px;">[ifc_results id="<?php echo esc_attr( $question->id ); ?>" view="word_cloud"]</code>
+                    <button type="button" class="button button-small ifc-copy-shortcode" data-shortcode='[ifc_results id="<?php echo esc_attr( $question->id ); ?>" view="word_cloud"]' style="padding: 0 8px; height: 22px; line-height: 20px; font-size: 11px;"><?php _e( 'Copy', 'ifc-plugin' ); ?></button>
+                </div>
+            </div>
             <div class="row-actions">
                 <a href="<?php echo admin_url( 'admin.php?page=ifc-plugin&action=edit&question_id=' . $question->id ); ?>"><?php _e( 'Edit', 'ifc-plugin' ); ?></a> |
 
@@ -165,3 +182,37 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
     }
     ?>
 </div>
+
+<script>
+jQuery(document).ready(function($) {
+    // Copy shortcode to clipboard
+    $('.ifc-copy-shortcode').on('click', function(e) {
+        e.preventDefault();
+        var button = $(this);
+        var shortcode = button.data('shortcode');
+
+        // Create temporary textarea for copying
+        var temp = $('<textarea>');
+        $('body').append(temp);
+        temp.val(shortcode).select();
+
+        try {
+            document.execCommand('copy');
+
+            // Visual feedback
+            var originalText = button.text();
+            button.text('<?php _e( 'Copied!', 'ifc-plugin' ); ?>');
+            button.css('color', '#46b450');
+
+            setTimeout(function() {
+                button.text(originalText);
+                button.css('color', '');
+            }, 2000);
+        } catch(err) {
+            alert('<?php _e( 'Failed to copy. Please copy manually:', 'ifc-plugin' ); ?> ' + shortcode);
+        }
+
+        temp.remove();
+    });
+});
+</script>
