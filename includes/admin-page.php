@@ -24,6 +24,14 @@ if ( isset( $_GET['updated'] ) ) {
         case 'delete_answers':
             echo '<div class="updated notice"><p>' . __( 'All answers for this question have been deleted.', 'ifc-plugin' ) . '</p></div>';
             break;
+        case 'cloned':
+            $new_id = isset( $_GET['new_id'] ) ? intval( $_GET['new_id'] ) : 0;
+            $message = __( 'Question cloned successfully.', 'ifc-plugin' );
+            if ( $new_id > 0 ) {
+                $message .= ' <a href="' . admin_url( 'admin.php?page=ifc-plugin&action=edit&question_id=' . $new_id ) . '">' . __( 'Edit the new question', 'ifc-plugin' ) . '</a>';
+            }
+            echo '<div class="updated notice is-dismissible"><p>' . $message . '</p></div>';
+            break;
         case 'error':
             $error_message = __( 'An error occurred. Please try again.', 'ifc-plugin' );
 
@@ -142,7 +150,32 @@ if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && isset( $_GET['que
                     <button type="button" class="button button-small ifc-copy-shortcode" data-shortcode='[ifc_results id="<?php echo esc_attr( $question->id ); ?>" view="word_cloud"]' style="padding: 0 8px; height: 22px; line-height: 20px; font-size: 11px;"><?php _e( 'Copy', 'ifc-plugin' ); ?></button>
                 </div>
             </div>
+            <?php
+            // Calculate statistics
+            if ( $entries > 0 ) {
+                $stats = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT
+                        MIN(time) as first_answer,
+                        MAX(time) as last_answer,
+                        AVG(CHAR_LENGTH(answer)) as avg_length
+                    FROM {$wpdb->prefix}ifc_answers
+                    WHERE question_id = %d",
+                    $question->id
+                ) );
+                $time_diff = human_time_diff( strtotime( $stats->first_answer ), strtotime( $stats->last_answer ) );
+                ?>
+                <div class="ifc-stats" style="margin-top: 8px; padding: 8px; background: #f9f9f9; border-left: 3px solid #2271b1; font-size: 12px;">
+                    <strong><?php _e( 'Statistics:', 'ifc-plugin' ); ?></strong>
+                    <span style="margin-left: 8px;">📊 <?php printf( __( '%d answers', 'ifc-plugin' ), $entries ); ?></span>
+                    <span style="margin-left: 8px;">📏 <?php printf( __( 'Avg. length: %d chars', 'ifc-plugin' ), round( $stats->avg_length ) ); ?></span>
+                    <span style="margin-left: 8px;">⏱️ <?php printf( __( 'Period: %s', 'ifc-plugin' ), $time_diff ); ?></span>
+                    <span style="margin-left: 8px;">📅 <?php printf( __( 'Latest: %s', 'ifc-plugin' ), human_time_diff( strtotime( $stats->last_answer ) ) . ' ' . __( 'ago', 'ifc-plugin' ) ); ?></span>
+                </div>
+                <?php
+            }
+            ?>
             <div class="row-actions">
+                <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=ifc_clone_question&question_id=' . $question->id ), 'ifc_clone_action', 'ifc_clone_nonce' ); ?>"><?php _e( 'Clone', 'ifc-plugin' ); ?></a> |
                 <a href="<?php echo admin_url( 'admin.php?page=ifc-plugin&action=edit&question_id=' . $question->id ); ?>"><?php _e( 'Edit', 'ifc-plugin' ); ?></a> |
 
                 <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" style="display:inline;">

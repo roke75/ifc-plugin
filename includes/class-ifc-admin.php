@@ -15,6 +15,7 @@ class IFC_Admin {
         add_action( 'admin_post_ifc_edit_question', array( $this, 'handle_edit_question' ) );
         add_action( 'admin_post_ifc_delete_question', array( $this, 'handle_delete_question' ) );
         add_action( 'admin_post_ifc_delete_answers', array( $this, 'handle_delete_answers' ) );
+        add_action( 'admin_post_ifc_clone_question', array( $this, 'handle_clone_question' ) );
         add_action( 'admin_post_ifc_export_csv', array( $this, 'handle_export_csv' ) );
         add_action( 'admin_post_ifc_export_json', array( $this, 'handle_export_json' ) );
     }
@@ -411,6 +412,58 @@ class IFC_Admin {
         header( 'Expires: 0' );
 
         echo json_encode( $export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+        exit;
+    }
+
+    // Handle clone question
+    public function handle_clone_question() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ifc-plugin' ) );
+        }
+
+        check_admin_referer( 'ifc_clone_action', 'ifc_clone_nonce' );
+
+        global $wpdb;
+        $question_id = isset( $_GET['question_id'] ) ? intval( $_GET['question_id'] ) : 0;
+
+        if ( $question_id <= 0 ) {
+            error_log( 'IFC Plugin: Invalid question ID in clone request' );
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=invalid_request' ) );
+            exit;
+        }
+
+        $table_questions = $wpdb->prefix . 'ifc_questions';
+        $question = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_questions WHERE id = %d", $question_id ) );
+
+        if ( ! $question ) {
+            error_log( sprintf( 'IFC Plugin: Question ID %d not found for cloning', $question_id ) );
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=question_not_found' ) );
+            exit;
+        }
+
+        // Clone the question (without answers)
+        $cloned = $wpdb->insert(
+            $table_questions,
+            array( 'question' => $question->question . ' (Copy)' ),
+            array( '%s' )
+        );
+
+        if ( false !== $cloned ) {
+            $new_question_id = $wpdb->insert_id;
+            wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=cloned&new_id=' . $new_question_id ) );
+            exit;
+        }
+
+        // Log database error
+        error_log( sprintf(
+            'IFC Plugin: Failed to clone question ID %d. DB Error: %s, Last Query: %s',
+            $question_id,
+            $wpdb->last_error,
+            $wpdb->last_query
+        ) );
+
+        $error_detail = $wpdb->last_error ? urlencode( $wpdb->last_error ) : 'database_insert_failed';
+        wp_redirect( admin_url( 'admin.php?page=ifc-plugin&updated=error&error_detail=' . $error_detail ) );
         exit;
     }
 }
