@@ -89,10 +89,12 @@ class IFC_Shortcodes {
         // Display answers
         ob_start();
         if ( $view == 'word_cloud' ) {
+            $cloud_width  = get_option( 'ifc_word_cloud_width', 600 );
+            $cloud_height = get_option( 'ifc_word_cloud_height', 400 );
             ?>
             <div class="ifc-word-cloud-container">
                 <h3><?php echo esc_html( $question->question ); ?></h3>
-                <div id="ifc-word-cloud-<?php echo esc_attr( $question_id ); ?>" style="width:600px; height:400px;"></div>
+                <div id="ifc-word-cloud-<?php echo esc_attr( $question_id ); ?>" style="width:<?php echo esc_attr( $cloud_width ); ?>px; height:<?php echo esc_attr( $cloud_height ); ?>px;"></div>
             </div>
             <?php
         } else {

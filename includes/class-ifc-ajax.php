@@ -35,15 +35,18 @@ class IFC_AJAX {
         $answers = $wpdb->get_col( $wpdb->prepare( "SELECT answer FROM $table_answers WHERE question_id = %d", $question_id ) );
 
         $word_counts = array();
-        $stop_words  = array(   // english stop words
-                                'and', 'or', 'the', 'a', 'an', 'is', 'was', 'as', 'in', 'of', 'to', 'for', 'on', 'at', 'by', 'with', 'from',
-                                // finnish stop words
-                                'ja', 'on', 'että', 'tämä', 'se', 'mutta', 'niin', 'tai', 'jos', 'kuten', 'kuitenkin', 'koska', 'jotta', 'vaan', 'kun', 'mikä', 'missä', 'mitä', 'milloin', 'jopa', 'sillä' ); // Lisää tarpeen mukaan
+
+        // Get stop words from settings
+        $stop_words_string = get_option( 'ifc_stop_words', 'and, or, the, a, an, is, was, as, in, of, to, for, on, at, by, with, from, ja, on, että, tämä, se, mutta, niin, tai, jos, kuten, kuitenkin, koska, jotta, vaan, kun, mikä, missä, mitä, milloin, jopa, sillä' );
+        $stop_words = array_map( 'trim', explode( ',', $stop_words_string ) );
+
+        // Get minimum word length from settings
+        $min_word_length = get_option( 'ifc_min_word_length', 2 );
 
         foreach ( $answers as $answer ) {
             $words = preg_split( '/\W+/u', mb_strtolower( $answer, 'UTF-8' ), -1, PREG_SPLIT_NO_EMPTY );
             foreach ( $words as $word ) {
-                if ( mb_strlen( $word, 'UTF-8' ) > 2 && ! in_array( $word, $stop_words ) ) {
+                if ( mb_strlen( $word, 'UTF-8' ) > $min_word_length && ! in_array( $word, $stop_words ) ) {
                     if ( isset( $word_counts[ $word ] ) ) {
                         $word_counts[ $word ]++;
                     } else {

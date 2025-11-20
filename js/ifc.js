@@ -23,8 +23,8 @@ jQuery(document).ready(function($){
                     container.empty();
 
                     container.jQCloud(wordData, {
-                        width: 600,
-                        height: 400,
+                        width: parseInt(ifc_ajax_obj.word_cloud_width) || 600,
+                        height: parseInt(ifc_ajax_obj.word_cloud_height) || 400,
                     });
 
                     container.data('lastWordCloudData', newDataStr);
@@ -79,7 +79,7 @@ jQuery(document).ready(function($){
                         console.log('AJAX-error: ' + status + ' - ' + error);
                     }
                 });
-            }, 5000);
+            }, parseInt(ifc_ajax_obj.poll_interval) || 5000);
         });
     } else {
         var lastID = 0;
@@ -116,7 +116,7 @@ jQuery(document).ready(function($){
 
         if (questionID > 0) {
             updateAnswers();
-            setInterval(updateAnswers, 5000);
+            setInterval(updateAnswers, parseInt(ifc_ajax_obj.poll_interval) || 5000);
         }
     }
 });

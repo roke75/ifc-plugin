@@ -17,3 +17,10 @@ $table_answers   = $wpdb->prefix . 'ifc_answers';
 
 $wpdb->query( "DROP TABLE IF EXISTS $table_answers" );
 $wpdb->query( "DROP TABLE IF EXISTS $table_questions" );
+
+// Delete plugin options
+delete_option( 'ifc_poll_interval' );
+delete_option( 'ifc_word_cloud_width' );
+delete_option( 'ifc_word_cloud_height' );
+delete_option( 'ifc_stop_words' );
+delete_option( 'ifc_min_word_length' );

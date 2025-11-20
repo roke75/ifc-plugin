@@ -48,8 +48,6 @@
 }
 
 .ifc-word-cloud-container div[id^="ifc-word-cloud-"] {
-    width: 600px;
-    height: 400px;
     margin: 0 auto;
 }
 

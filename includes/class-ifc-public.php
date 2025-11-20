@@ -31,8 +31,11 @@ class IFC_Public {
 
         // Localize script for AJAX
         wp_localize_script( 'ifc-js', 'ifc_ajax_obj', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => wp_create_nonce( 'ifc_ajax_nonce' ),
+            'ajax_url'          => admin_url( 'admin-ajax.php' ),
+            'nonce'             => wp_create_nonce( 'ifc_ajax_nonce' ),
+            'poll_interval'     => get_option( 'ifc_poll_interval', 5000 ),
+            'word_cloud_width'  => get_option( 'ifc_word_cloud_width', 600 ),
+            'word_cloud_height' => get_option( 'ifc_word_cloud_height', 400 ),
         ) );
     }
 }

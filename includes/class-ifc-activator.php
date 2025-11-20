@@ -34,5 +34,22 @@ class IFC_Activator {
 
         dbDelta( $sql_questions );
         dbDelta( $sql_answers );
+
+        // Set default options if they don't exist
+        if ( get_option( 'ifc_poll_interval' ) === false ) {
+            add_option( 'ifc_poll_interval', 5000 );
+        }
+        if ( get_option( 'ifc_word_cloud_width' ) === false ) {
+            add_option( 'ifc_word_cloud_width', 600 );
+        }
+        if ( get_option( 'ifc_word_cloud_height' ) === false ) {
+            add_option( 'ifc_word_cloud_height', 400 );
+        }
+        if ( get_option( 'ifc_stop_words' ) === false ) {
+            add_option( 'ifc_stop_words', 'and, or, the, a, an, is, was, as, in, of, to, for, on, at, by, with, from, ja, on, että, tämä, se, mutta, niin, tai, jos, kuten, kuitenkin, koska, jotta, vaan, kun, mikä, missä, mitä, milloin, jopa, sillä' );
+        }
+        if ( get_option( 'ifc_min_word_length' ) === false ) {
+            add_option( 'ifc_min_word_length', 2 );
+        }
     }
 }

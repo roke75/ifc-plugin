@@ -9,6 +9,7 @@ class IFC_Admin {
     public function run() {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
 
         add_action( 'admin_post_ifc_add_question', array( $this, 'handle_add_question' ) );
         add_action( 'admin_post_ifc_edit_question', array( $this, 'handle_edit_question' ) );
@@ -26,6 +27,64 @@ class IFC_Admin {
             'dashicons-editor-help',
             6
         );
+
+        add_submenu_page(
+            'ifc-plugin',
+            __( 'Settings', 'ifc-plugin' ),
+            __( 'Settings', 'ifc-plugin' ),
+            'manage_options',
+            'ifc-plugin-settings',
+            array( $this, 'settings_page' )
+        );
+    }
+
+    // Register settings
+    public function register_settings() {
+        register_setting( 'ifc_plugin_settings', 'ifc_poll_interval', array(
+            'type'              => 'integer',
+            'default'           => 5000,
+            'sanitize_callback' => array( $this, 'sanitize_poll_interval' ),
+        ) );
+
+        register_setting( 'ifc_plugin_settings', 'ifc_word_cloud_width', array(
+            'type'              => 'integer',
+            'default'           => 600,
+            'sanitize_callback' => 'absint',
+        ) );
+
+        register_setting( 'ifc_plugin_settings', 'ifc_word_cloud_height', array(
+            'type'              => 'integer',
+            'default'           => 400,
+            'sanitize_callback' => 'absint',
+        ) );
+
+        register_setting( 'ifc_plugin_settings', 'ifc_stop_words', array(
+            'type'              => 'string',
+            'default'           => 'and, or, the, a, an, is, was, as, in, of, to, for, on, at, by, with, from, ja, on, että, tämä, se, mutta, niin, tai, jos, kuten, kuitenkin, koska, jotta, vaan, kun, mikä, missä, mitä, milloin, jopa, sillä',
+            'sanitize_callback' => 'sanitize_textarea_field',
+        ) );
+
+        register_setting( 'ifc_plugin_settings', 'ifc_min_word_length', array(
+            'type'              => 'integer',
+            'default'           => 2,
+            'sanitize_callback' => 'absint',
+        ) );
+    }
+
+    // Sanitize poll interval to ensure it's within reasonable bounds
+    public function sanitize_poll_interval( $value ) {
+        $value = absint( $value );
+        if ( $value < 1000 ) {
+            $value = 1000; // Minimum 1 second
+        } elseif ( $value > 60000 ) {
+            $value = 60000; // Maximum 60 seconds
+        }
+        return $value;
+    }
+
+    // Settings page
+    public function settings_page() {
+        include IFC_PLUGIN_DIR . 'includes/settings-page.php';
     }
 
     // Load translations
