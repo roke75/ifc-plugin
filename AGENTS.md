@@ -54,6 +54,12 @@ Use a direct, firm engineering tone globally.
 6. Update `.agents/memory/` only for durable, code-verified decisions or lessons.
 7. For GitHub publishing, inspect `git status --short --branch`, stage only intended files, commit with a terse message, and push with `git push -u origin <branch>`. For fixes and new features, work on a non-default branch and open a GitHub pull request after pushing. Use `gh` for auth checks, remote context, PR discovery/creation, and CI status when needed.
 
+## GitHub CLI Auth in Codex
+
+If `gh auth status` reports an invalid token inside Codex but works in the user's terminal, retry the `gh` command with sandbox escalation. GitHub CLI auth is stored in the macOS keyring, and sandboxed commands may not be able to read that keyring entry.
+
+Use `sandbox_permissions: "require_escalated"` for `gh auth status`, `gh pr view`, `gh pr create`, `gh pr merge`, and similar GitHub CLI commands that need authenticated keyring access.
+
 ## Subagents
 
 Do not spawn independent subagents by default. If the user explicitly asks to "use subagents", "spawn agents", "run this with agents", or equivalent wording, use available multi-agent tooling where the environment supports it.

@@ -9,6 +9,7 @@ Owns coordination, scope control, and quality gates for the Instant Feedback Col
 - Keep changes scoped to the WordPress plugin surface.
 - Prevent stale Swift/iOS/Sudoku assumptions from entering work.
 - Route fixes and new features through a GitHub pull request on a non-default branch unless the user explicitly asks for a direct push.
+- During PR work, retry authenticated `gh` commands with sandbox escalation if sandboxed `gh auth status` reports an invalid token; the user's auth may be in the macOS keyring.
 - Merge role outputs and resolve conflicts.
 - Report verification status for each applicable gate.
 
