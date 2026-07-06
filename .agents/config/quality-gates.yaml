@@ -1,0 +1,83 @@
+gates:
+  markdown_or_config:
+    required:
+      - inspect_changed_files
+      - verify_links_paths_and_yaml_syntax_when_applicable
+    commands: []
+
+  php_plugin_logic:
+    required:
+      - inspect_bootstrap_and_touched_classes
+      - verify_wordpress_hooks_remain_registered
+      - verify_sanitization_escaping_and_prepared_sql_where_relevant
+      - php_lint_changed_files
+    commands:
+      - php -l <changed-php-file>
+
+  admin_ui:
+    required:
+      - inspect_admin_handlers_and_admin_page
+      - verify_manage_options_capability_for_admin_mutations
+      - verify_admin_post_nonce_checks
+      - verify_output_escaping
+      - php_lint_changed_files
+    commands:
+      - php -l <changed-php-file>
+
+  shortcodes_ajax:
+    required:
+      - inspect_shortcodes_ajax_and_public_asset_wiring
+      - preserve_shortcode_attributes_and_ajax_action_names_unless_explicitly_changed
+      - verify_ajax_nonce_checks
+      - verify_localized_script_object_usage
+      - php_lint_changed_files
+    commands:
+      - php -l <changed-php-file>
+
+  database_persistence:
+    required:
+      - inspect_activator_schema_and_all_table_access
+      - verify_upgrade_or_backward_compatibility_for_schema_changes
+      - verify_wpdb_prepare_or_structured_methods_for_user_controlled_values
+      - php_lint_changed_files
+    commands:
+      - php -l <changed-php-file>
+
+  frontend_assets:
+    required:
+      - inspect_js_css_and_public_enqueue_wiring
+      - verify_ajax_payload_nonce_and_question_id_handling_when_touched
+      - verify_responsive_output_for_shortcode_surfaces_when_relevant
+    commands: []
+
+  i18n:
+    required:
+      - verify_text_domain_ifc_plugin
+      - inspect_po_pot_mo_impact_when_strings_change
+      - regenerate_compiled_translations_when_tooling_is_available_and_needed
+    commands: []
+
+  tests:
+    required:
+      - inspect_available_test_or_lint_tooling
+      - run_targeted_checks_when_present
+      - php_lint_changed_files_as_baseline
+    commands:
+      - php -l <changed-php-file>
+
+  security_privacy_sensitive:
+    required:
+      - targeted_wordpress_security_review
+      - verify_no_secret_or_credential_material_added
+      - verify_no_unrequested_tracking_or_external_service_behavior
+      - verify_nonce_capability_sanitization_escaping_and_prepared_sql
+      - php_lint_changed_files
+    commands:
+      - php -l <changed-php-file>
+
+reporting:
+  statuses:
+    - passed
+    - not_run
+    - not_applicable
+  require_reason_for_not_run: true

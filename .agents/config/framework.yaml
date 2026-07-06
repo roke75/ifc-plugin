@@ -1,0 +1,104 @@
+name: ifc-wordpress-plugin-ai-development-framework
+version: 0.1.0
+status: initial
+
+source_of_truth:
+  authoritative:
+    - ifc.php
+    - includes
+    - js
+    - css
+    - languages
+    - README.md
+    - local_php_and_wordpress_checks
+  non_authoritative:
+    - prose_docs
+    - copied_agent_scaffolding_unless_aligned_to_this_repo
+
+project:
+  product: Instant Feedback Collector
+  plugin_slug: ifc-plugin
+  language: php
+  platform: wordpress
+  text_domain: ifc-plugin
+  main_file: ifc.php
+  persistence: wordpress_database_tables
+  database_tables:
+    - ifc_questions
+    - ifc_answers
+  public_shortcodes:
+    - ifc
+    - ifc_results
+  ajax_actions:
+    - ifc_update_word_cloud
+    - ifc_update_answers
+
+communication_style:
+  scope: global
+  tone: direct_firm_engineering
+  rules:
+    - be_concise_and_specific
+    - do_not_over_sympathize_flatter_or_mirror_emotions
+    - avoid_soft_filler
+    - state_risks_tradeoffs_and_blockers_plainly
+    - push_back_on_security_privacy_data_integrity_accessibility_or_maintainability_conflicts
+    - apologize_only_for_concrete_mistakes_then_state_correction
+
+entry_points:
+  bootstrap:
+    - ifc.php
+  admin:
+    - includes/class-ifc-admin.php
+    - includes/admin-page.php
+  public:
+    - includes/class-ifc-public.php
+    - includes/class-ifc-shortcodes.php
+  ajax:
+    - includes/class-ifc-ajax.php
+  persistence:
+    - includes/class-ifc-activator.php
+    - includes/class-ifc-deactivator.php
+  assets:
+    - js/ifc.js
+    - css/ifc.css
+  translations:
+    - languages
+
+subagents:
+  default: disabled
+  activation:
+    - explicit_user_request
+  fallback: simulate_roles_in_main_session
+  supervisor_role: .agents/agents/supervisor.md
+  role_docs:
+    - .agents/agents/app-implementation.md
+    - .agents/agents/shortcodes-ajax.md
+    - .agents/agents/ui-accessibility.md
+    - .agents/agents/persistence.md
+    - .agents/agents/project-config.md
+    - .agents/agents/privacy-safety.md
+    - .agents/agents/testing.md
+    - .agents/agents/documentation.md
+    - .agents/agents/code-review.md
+
+change_categories:
+  - markdown_or_config
+  - php_plugin_logic
+  - admin_ui
+  - shortcodes_ajax
+  - database_persistence
+  - frontend_assets
+  - i18n
+  - tests
+  - security_privacy_sensitive
+
+required_principles:
+  - inspect_code_before_docs
+  - preserve_wordpress_hook_wiring
+  - preserve_shortcode_contracts_unless_explicitly_changed
+  - preserve_nonce_capability_sanitization_and_escaping
+  - use_prepared_sql_for_user_controlled_values
+  - preserve_database_compatibility_or_define_upgrade_path
+  - keep_text_domain_consistent
+  - run_or_report_quality_gates
+  - avoid_unrequested_external_integrations
