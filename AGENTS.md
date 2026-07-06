@@ -29,6 +29,7 @@ Read only the context needed for the task:
 - JavaScript must use the localized `ifc_ajax_obj.ajax_url` and `ifc_ajax_obj.nonce` for plugin AJAX calls.
 - Text shown to users must stay translation-ready with text domain `ifc-plugin`.
 - Do not commit generated build folders, dependency vendors, local WordPress installs, credentials, database dumps, or personal environment files.
+- Fixes and new features should be delivered through a GitHub pull request: create or use a non-default branch, commit the scoped change, push it, and open a PR. Direct pushes to `main` are only for explicit user requests or non-feature/non-fix repository maintenance where the user asks for that flow.
 - Keep `.agents/skills/` aligned with this repository when the agent framework changes.
 
 ## Communication Style
@@ -51,7 +52,7 @@ Use a direct, firm engineering tone globally.
 4. Make focused edits that match local WordPress and PHP style.
 5. Run applicable quality gates or report why they were not run.
 6. Update `.agents/memory/` only for durable, code-verified decisions or lessons.
-7. For GitHub publishing, inspect `git status --short --branch`, stage only intended files, commit with a terse message, and push with `git push -u origin <branch>`. Use `gh` for auth checks, remote context, PR discovery/creation, and CI status when needed.
+7. For GitHub publishing, inspect `git status --short --branch`, stage only intended files, commit with a terse message, and push with `git push -u origin <branch>`. For fixes and new features, work on a non-default branch and open a GitHub pull request after pushing. Use `gh` for auth checks, remote context, PR discovery/creation, and CI status when needed.
 
 ## Subagents
 
@@ -75,6 +76,6 @@ If no subagent tooling is available, say so and simulate the role split within t
 - Database/schema changes: inspect activation and upgrade path; use WordPress/dbDelta constraints where relevant.
 - Translation changes: inspect text domain `ifc-plugin` and update source strings consistently; regenerate compiled `.mo` only when tooling is available and needed.
 - Markdown/config only: inspect links, file paths, and syntax.
-- GitHub push/PR work: confirm `gh --version`, `gh auth status`, current branch, remote, and staged file scope before pushing.
+- GitHub push/PR work: confirm `gh --version`, `gh auth status`, current branch, remote, and staged file scope before pushing. For fixes and new features, verify the branch is not `main` before pushing and open a GitHub PR after the push.
 
 Final responses should include what changed and verification status.

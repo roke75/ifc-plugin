@@ -10,6 +10,7 @@ Core rules:
 - Keep admin and AJAX flows protected with capabilities, nonces, sanitization, escaping, and prepared SQL.
 - Keep user-facing strings translation-ready with text domain `ifc-plugin`.
 - Do not add analytics, tracking, external services, package managers, or build systems unless the user explicitly asks or the code already depends on them.
+- Use GitHub pull requests for fixes and new features: work on a non-default branch, push it, and open a PR. Direct pushes to `main` require an explicit user request or a narrow repository-maintenance task where the user asks for that flow.
 - Do not use independent subagents by default. If the user explicitly asks to use subagents and the environment supports them, delegate bounded work using `.agents/agents/`; otherwise simulate the role split in the main session.
 - Use a direct, firm engineering tone globally. Be concise and specific; do not over-sympathize, flatter, mirror emotions, or use soft filler. State risks and blockers plainly, and push back on unsafe or unmaintainable requests.
 

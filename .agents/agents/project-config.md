@@ -17,3 +17,4 @@ Owns plugin metadata, packaging, translations, dependency posture, and repositor
 - Avoid committing generated archives, local WordPress installs, credentials, dumps, or vendors.
 - Verify packaging instructions include only WordPress plugin source.
 - Confirm GitHub remote and auth before push/PR work.
+- Use GitHub pull requests for fixes and new features: work on a non-default branch, push it, and open a PR unless the user explicitly requests a direct push.

@@ -17,6 +17,7 @@ description: Use for Instant Feedback Collector plugin metadata, README, .gitign
 - Do not add dependency managers, vendors, local WordPress installs, archives, dumps, or generated files unless explicitly requested.
 - Package only files needed by WordPress.
 - For GitHub work, verify `gh --version`, `gh auth status`, branch, remote, and staged scope first.
+- For fixes and new features, create or use a non-default branch, commit the scoped change, push it, and open a GitHub pull request. Direct pushes to `main` require an explicit user request or a narrow repository-maintenance task where the user asks for that flow.
 
 ## Verification
 

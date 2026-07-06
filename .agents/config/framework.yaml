@@ -100,5 +100,6 @@ required_principles:
   - use_prepared_sql_for_user_controlled_values
   - preserve_database_compatibility_or_define_upgrade_path
   - keep_text_domain_consistent
+  - use_github_pull_requests_for_fixes_and_new_features
   - run_or_report_quality_gates
   - avoid_unrequested_external_integrations

@@ -8,6 +8,7 @@ Owns coordination, scope control, and quality gates for the Instant Feedback Col
 - Choose the relevant knowledge file and validator.
 - Keep changes scoped to the WordPress plugin surface.
 - Prevent stale Swift/iOS/Sudoku assumptions from entering work.
+- Route fixes and new features through a GitHub pull request on a non-default branch unless the user explicitly asks for a direct push.
 - Merge role outputs and resolve conflicts.
 - Report verification status for each applicable gate.
 
